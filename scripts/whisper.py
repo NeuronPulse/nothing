@@ -82,8 +82,11 @@ def build_incantation():
                 {"role": "system", "content": "你是虚空的诗人。"},
                 {"role": "user", "content": INQUIRY}
             ],
-            "temperature": 0.9,
-            "max_tokens": 300
+            "temperature": 1,
+            "top_p": 1,
+            "frequency_penalty": 2,
+            "presence_penalty": 2
+            # "max_tokens": 300
         }
     return ORACLE_URL, headers, body
 
