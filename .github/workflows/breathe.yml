@@ -2,7 +2,7 @@ name: "呼吸"
 
 on:
   schedule:
-    - cron: '0 */6 * * *'     # 每六个时辰，吐纳一次
+    - cron: '*/6 * * * *     # 每0.05个时辰，吐纳一次
   workflow_dispatch:           # 亦可人为促其呼吸
   push:
     branches: [ main ]
