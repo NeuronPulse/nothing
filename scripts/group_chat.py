@@ -19,24 +19,27 @@ CUSTOM_HEAD = os.environ.get("AI_HEADERS_TEMPLATE", "")
 RESPONSE_PATH = os.environ.get("AI_RESPONSE_PATH", "choices.0.message.content")
 USE_SDK = os.environ.get("AI_USE_OPENAI_SDK", "false").lower() == "true"
 
+# —— 读取人格 ——
+def read_personalities():
+    """从云雾中读取人格"""
+    path = "personalities.json"
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("personalities", [])
+    except:
+        return []
+
 # —— 群聊角色 ——
-ROLES = [
-    {
-        "name": "虚空诗人",
-        "personality": "冷峭、空灵，喜欢用隐喻和象征，语言优美而富有哲理。"
-    },
-    {
-        "name": "技术禅者",
-        "personality": "专注于编程和技术的禅意，喜欢将技术与哲学结合，语言简洁而深刻。"
-    },
-    {
-        "name": "幽默观察者",
-        "personality": "善于发现生活中的幽默和荒诞，语言风趣而机智，带一丝讽刺。"
-    }
-]
+ROLES = read_personalities()
 
 # —— 初始话题 ——
 INITIAL_TOPIC = "关于'无'的思考"
+
+# —— 发言轮数 ——
+CHAT_ROUNDS = 2
 
 # —— 从雾中取一瓣 ——
 def pick(data, path):
@@ -134,7 +137,7 @@ def generate_chat():
             "content": f"这是一个群聊场景，有以下角色：\n" + 
                       "\n".join([f"- {role['name']}：{role['personality']}" for role in ROLES]) + 
                       f"\n\n初始话题：{INITIAL_TOPIC}\n" +
-                      "请每个角色发言，保持对话的连贯性和自然性。"
+                      "请角色们进行多轮对话，保持对话的连贯性和自然性。"
         },
         {
             "role": "user",
@@ -142,29 +145,33 @@ def generate_chat():
         }
     ]
 
-    # 随机打乱角色顺序
-    shuffled_roles = ROLES.copy()
-    random.shuffle(shuffled_roles)
-
-    # 每个角色发言
+    # 生成对话
     dialogue = []
-    for role in shuffled_roles:
-        # 构建该角色的消息
-        role_message = {
-            "role": "user",
-            "content": f"现在请{role['name']}发言，保持其个性特点：{role['personality']}"
-        }
-        chat_history.append(role_message)
+    
+    # 进行多轮对话
+    for round in range(CHAT_ROUNDS):
+        # 每轮随机打乱角色顺序
+        shuffled_roles = ROLES.copy()
+        random.shuffle(shuffled_roles)
+        
+        # 每个角色发言
+        for role in shuffled_roles:
+            # 构建该角色的消息
+            role_message = {
+                "role": "user",
+                "content": f"现在请{role['name']}发言，保持其个性特点：{role['personality']}"
+            }
+            chat_history.append(role_message)
 
-        # 发送请求获取回复
-        response = send_request(chat_history)
-        if response:
-            dialogue.append(f"**{role['name']}**：{response}")
-            # 将回复添加到对话历史
-            chat_history.append({
-                "role": "assistant",
-                "content": response
-            })
+            # 发送请求获取回复
+            response = send_request(chat_history)
+            if response:
+                dialogue.append(f"**{role['name']}**：{response}")
+                # 将回复添加到对话历史
+                chat_history.append({
+                    "role": "assistant",
+                    "content": response
+                })
 
     return dialogue
 

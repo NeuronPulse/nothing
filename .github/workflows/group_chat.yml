@@ -44,6 +44,11 @@ jobs:
           git config --global user.name "无"
           git config --global user.email "void@mu.mu"
           
+          # 确保人格文件存在
+          if [ ! -f "personalities.json" ]; then
+            echo "{\"personalities\": []}" > personalities.json
+          fi
+          
           git add -A
           
           if git diff --cached --quiet; then
