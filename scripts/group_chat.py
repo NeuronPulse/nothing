@@ -201,6 +201,46 @@ def send_request(messages):
         return None
     return answer
 
+# —— 读取聊天记录 ——
+def read_chat_history():
+    """从云雾中读取聊天历史"""
+    path = "chat_log.md"
+    if not os.path.exists(path):
+        return []
+    
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        # 解析聊天记录，提取对话内容
+        dialogues = []
+        lines = content.split('\n')
+        current_role = None
+        current_content = []
+        
+        for line in lines:
+            line = line.strip()
+            # 检查是否是角色发言
+            if line.startswith("**") and "：" in line:
+                # 保存之前的对话
+                if current_role and current_content:
+                    dialogues.append(f"**{current_role}**：\n\n{''.join(current_content).strip()}")
+                # 提取角色名称
+                role_part = line.split("：")[0]
+                current_role = role_part.strip('*')
+                current_content = []
+            elif current_role and line:
+                # 累积内容
+                current_content.append(line + '\n')
+        
+        # 保存最后一条对话
+        if current_role and current_content:
+            dialogues.append(f"**{current_role}**：\n\n{''.join(current_content).strip()}")
+        
+        return dialogues
+    except:
+        return []
+
 # —— 生成群聊对话 ——
 def generate_chat():
     # 管理人格
@@ -208,20 +248,40 @@ def generate_chat():
     if not personalities:
         return []
     
+    # 读取之前的聊天历史
+    previous_dialogue = read_chat_history()
+    
     # 初始化对话历史
-    chat_history = [
-        {
-            "role": "system",
-            "content": f"这是一个群聊场景，有以下角色：\n" + 
-                      "\n".join([f"- {role['name']}：{role['personality']}" for role in personalities]) + 
-                      f"\n\n初始话题：{INITIAL_TOPIC}\n" +
-                      "请角色们进行多轮对话，保持对话的连贯性和自然性。"
-        },
-        {
-            "role": "user",
-            "content": f"开始群聊，初始话题：{INITIAL_TOPIC}"
-        }
-    ]
+    if previous_dialogue:
+        # 有之前的聊天记录，继续对话
+        chat_history = [
+            {
+                "role": "system",
+                "content": f"这是一个群聊场景，有以下角色：\n" + 
+                          "\n".join([f"- {role['name']}：{role['personality']}" for role in personalities]) + 
+                          "\n\n请角色们继续之前的对话，保持对话的连贯性和自然性。\n" +
+                          "之前的对话内容：\n" + "\n\n".join(previous_dialogue[-5:])  # 只取最近5条对话
+            },
+            {
+                "role": "user",
+                "content": "请继续之前的对话。"
+            }
+        ]
+    else:
+        # 没有之前的聊天记录，开始新对话
+        chat_history = [
+            {
+                "role": "system",
+                "content": f"这是一个群聊场景，有以下角色：\n" + 
+                          "\n".join([f"- {role['name']}：{role['personality']}" for role in personalities]) + 
+                          f"\n\n初始话题：{INITIAL_TOPIC}\n" +
+                          "请角色们进行多轮对话，保持对话的连贯性和自然性。"
+            },
+            {
+                "role": "user",
+                "content": f"开始群聊，初始话题：{INITIAL_TOPIC}"
+            }
+        ]
 
     # 生成对话
     dialogue = []
@@ -268,22 +328,39 @@ def update_chat_log(dialogue):
             if len(parts) == 2:
                 role = parts[0].strip()
                 content = parts[1].strip()
-                # 确保角色名称用粗体包围
-                if not role.startswith("**"):
-                    role = f"**{role}**"
-                if not role.endswith("**"):
-                    role = f"{role}**"
+                # 确保角色名称用粗体包围且不重复
+                role = role.strip('*')  # 移除所有星号
+                role = f"**{role}**"  # 重新添加粗体标记
                 line = f"{role}：\n\n{content}"
         formatted_dialogue.append(line)
     
     # 生成带格式的日志条目
-    log_entry = f"## {timestamp}\n\n" + "\n\n".join(formatted_dialogue) + "\n\n"
+    log_entry = f"### {timestamp}\n\n" + "\n\n".join(formatted_dialogue) + "\n\n"
 
     # 确保文件存在并添加头部（如果需要）
     if not os.path.exists("chat_log.md"):
         header = "# LLM 群聊记录\n\n本文件记录了 LLM 之间的群聊对话。\n\n## 对话历史\n\n"
         with open("chat_log.md", "w", encoding="utf-8") as f:
             f.write(header)
+    else:
+        # 修复现有文件的格式问题
+        with open("chat_log.md", "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        # 修复角色名称重复问题
+        content = content.replace("**：**", "**：")
+        content = content.replace("：**：", "：")
+        
+        # 确保标题格式一致
+        import re
+        content = re.sub(r'## (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})', r'### \1', content)
+        
+        # 修复内容排版，确保角色发言后有正确的换行
+        content = re.sub(r'\*\*(.*?)\*\*：(?!\n)', r'**\1**：\n\n', content)
+        
+        # 写回修复后的内容
+        with open("chat_log.md", "w", encoding="utf-8") as f:
+            f.write(content)
     
     # 追加对话记录
     with open("chat_log.md", "a", encoding="utf-8") as f:
