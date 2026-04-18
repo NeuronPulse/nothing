@@ -166,7 +166,15 @@ def generate_chat():
 # —— 更新聊天记录 ——
 def update_chat_log(dialogue):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_entry = f"## {timestamp}\n\n" + "\n\n".join(dialogue) + "\n\n"
+    # 修复格式，确保标题正确且角色名称不重复
+    formatted_dialogue = []
+    for line in dialogue:
+        # 移除重复的角色名称
+        if "：：" in line:
+            line = line.replace("：：", "：")
+        formatted_dialogue.append(line)
+    
+    log_entry = f"### {timestamp}\n\n" + "\n\n".join(formatted_dialogue) + "\n\n"
 
     with open("chat_log.md", "a", encoding="utf-8") as f:
         f.write(log_entry)
