@@ -46,7 +46,8 @@ jobs:
         run: |
           git config --global user.name "无"
           git config --global user.email "void@mu.mu"
-          git add exhalations/ mist.svg
+          mkdir -p exhalations
+          git add -A
           if git diff --cached --quiet; then
             echo "—— 今日无新雾。"
           else
