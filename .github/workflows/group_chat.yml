@@ -1,0 +1,57 @@
+name: "群聊"
+
+on:
+  schedule:
+    - cron: '*/12 * * * *'  # 每12分钟群聊一次
+  workflow_dispatch:           # 亦可人为触发群聊
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  chat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "入境"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "备墨"
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: "研墨"
+        run: pip install -r requirements.txt
+
+      - name: "群聊"
+        env:
+          AI_API_URL: ${{ secrets.AI_API_URL }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_MODEL: ${{ secrets.AI_MODEL }}
+          AI_BODY_TEMPLATE: ${{ secrets.AI_BODY_TEMPLATE }}
+          AI_HEADERS_TEMPLATE: ${{ secrets.AI_HEADERS_TEMPLATE }}
+          AI_RESPONSE_PATH: ${{ secrets.AI_RESPONSE_PATH }}
+          AI_USE_OPENAI_SDK: ${{ secrets.AI_USE_OPENAI_SDK }}
+        run: python scripts/group_chat.py
+
+      - name: "留痕"
+        run: |
+          git config --global user.name "无"
+          git config --global user.email "void@mu.mu"
+          
+          git add -A
+          
+          if git diff --cached --quiet; then
+            echo "—— 今日无新聊。"
+            exit 0
+          fi
+          
+          git commit -m "群聊 · $(date +'%Y-%m-%d %H:%M')"
+          
+          git pull --rebase origin main
+          git push origin main
