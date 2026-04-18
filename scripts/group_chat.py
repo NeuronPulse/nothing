@@ -32,6 +32,79 @@ def read_personalities():
     except:
         return []
 
+# —— 生成新人格 ——
+def generate_new_personality():
+    """从虚空中生成新人格"""
+    if not ORACLE_URL:
+        return None
+    
+    messages = [
+        {
+            "role": "system",
+            "content": "你是一位人格塑造师，擅长创造独特而富有深度的角色人格。请生成一个新的人格，包含姓名和个性特点。人格应该与'无'、'虚空'、'禅意'等主题相关，风格独特，语言优美。"
+        },
+        {
+            "role": "user",
+            "content": "生成一个新的人格，包含姓名和个性特点。"
+        }
+    ]
+    
+    response = send_request(messages)
+    if not response:
+        return None
+    
+    # 解析生成的人格
+    try:
+        # 简单解析，假设格式为 "姓名：个性特点"
+        lines = response.split('\n')
+        name = ""
+        personality = ""
+        
+        for line in lines:
+            line = line.strip()
+            if line and not name:
+                if "：" in line:
+                    parts = line.split("：", 1)
+                    name = parts[0].strip()
+                    personality = parts[1].strip()
+                else:
+                    name = line.strip()
+            elif line and name and not personality:
+                personality = line.strip()
+        
+        if name and personality:
+            return {"name": name, "personality": personality}
+    except:
+        pass
+    
+    return None
+
+# —— 保存人格 ——
+def save_personalities(personalities):
+    """将人格保存到云雾中"""
+    path = "personalities.json"
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump({"personalities": personalities}, f, ensure_ascii=False, indent=2)
+        return True
+    except:
+        return False
+
+# —— 管理人格 ——
+def manage_personalities():
+    """管理人格，确保人格数量充足"""
+    personalities = read_personalities()
+    
+    # 如果人格数量不足，生成新人格
+    if len(personalities) < 3:
+        new_personality = generate_new_personality()
+        if new_personality:
+            personalities.append(new_personality)
+            save_personalities(personalities)
+            print(f"新人格已生成：{new_personality['name']}")
+    
+    return personalities
+
 # —— 群聊角色 ——
 ROLES = read_personalities()
 
@@ -39,7 +112,7 @@ ROLES = read_personalities()
 INITIAL_TOPIC = "关于'无'的思考"
 
 # —— 发言轮数 ——
-CHAT_ROUNDS = 2
+CHAT_ROUNDS = random.randint(1, 3)  # 随机1-3轮对话
 
 # —— 从雾中取一瓣 ——
 def pick(data, path):
@@ -130,12 +203,17 @@ def send_request(messages):
 
 # —— 生成群聊对话 ——
 def generate_chat():
+    # 管理人格
+    personalities = manage_personalities()
+    if not personalities:
+        return []
+    
     # 初始化对话历史
     chat_history = [
         {
             "role": "system",
             "content": f"这是一个群聊场景，有以下角色：\n" + 
-                      "\n".join([f"- {role['name']}：{role['personality']}" for role in ROLES]) + 
+                      "\n".join([f"- {role['name']}：{role['personality']}" for role in personalities]) + 
                       f"\n\n初始话题：{INITIAL_TOPIC}\n" +
                       "请角色们进行多轮对话，保持对话的连贯性和自然性。"
         },
@@ -151,7 +229,7 @@ def generate_chat():
     # 进行多轮对话
     for round in range(CHAT_ROUNDS):
         # 每轮随机打乱角色顺序
-        shuffled_roles = ROLES.copy()
+        shuffled_roles = personalities.copy()
         random.shuffle(shuffled_roles)
         
         # 每个角色发言
@@ -184,10 +262,30 @@ def update_chat_log(dialogue):
         # 移除重复的角色名称
         if "：：" in line:
             line = line.replace("：：", "：")
+        # 确保角色名称格式正确
+        if "**" in line and "：" in line:
+            parts = line.split("：", 1)
+            if len(parts) == 2:
+                role = parts[0].strip()
+                content = parts[1].strip()
+                # 确保角色名称用粗体包围
+                if not role.startswith("**"):
+                    role = f"**{role}**"
+                if not role.endswith("**"):
+                    role = f"{role}**"
+                line = f"{role}：\n\n{content}"
         formatted_dialogue.append(line)
     
-    log_entry = f"### {timestamp}\n\n" + "\n\n".join(formatted_dialogue) + "\n\n"
+    # 生成带格式的日志条目
+    log_entry = f"## {timestamp}\n\n" + "\n\n".join(formatted_dialogue) + "\n\n"
 
+    # 确保文件存在并添加头部（如果需要）
+    if not os.path.exists("chat_log.md"):
+        header = "# LLM 群聊记录\n\n本文件记录了 LLM 之间的群聊对话。\n\n## 对话历史\n\n"
+        with open("chat_log.md", "w", encoding="utf-8") as f:
+            f.write(header)
+    
+    # 追加对话记录
     with open("chat_log.md", "a", encoding="utf-8") as f:
         f.write(log_entry)
 
