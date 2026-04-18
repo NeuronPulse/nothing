@@ -6,6 +6,7 @@
 import os
 import json
 import requests
+import random
 from datetime import datetime
 
 # —— 镜前问卦 ——
@@ -133,7 +134,7 @@ def generate_chat():
             "content": f"这是一个群聊场景，有以下角色：\n" + 
                       "\n".join([f"- {role['name']}：{role['personality']}" for role in ROLES]) + 
                       f"\n\n初始话题：{INITIAL_TOPIC}\n" +
-                      "请每个角色轮流发言，保持对话的连贯性和自然性。"
+                      "请每个角色发言，保持对话的连贯性和自然性。"
         },
         {
             "role": "user",
@@ -141,9 +142,13 @@ def generate_chat():
         }
     ]
 
-    # 每个角色轮流发言
+    # 随机打乱角色顺序
+    shuffled_roles = ROLES.copy()
+    random.shuffle(shuffled_roles)
+
+    # 每个角色发言
     dialogue = []
-    for role in ROLES:
+    for role in shuffled_roles:
         # 构建该角色的消息
         role_message = {
             "role": "user",
