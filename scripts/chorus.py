@@ -104,13 +104,13 @@ def condense_souls(souls):
 # —— 驭魂 ——
 def steward_souls():
     """
-    管理人格，确保人格数量充足。
-    如园丁护花，魂需有伴。
+    管理人格，随机孕育新魂。
+    如四季更替，魂随境生。
     """
     souls = read_souls()
     
-    # 如果人格数量不足，生成新人格
-    if len(souls) < 3:
+    # 随机决定是否生成新人格（50%的概率）
+    if random.random() < 0.5:
         new_soul = birth_soul()
         if new_soul:
             souls.append(new_soul)
@@ -368,7 +368,10 @@ def carve_echoes(echoes):
                 # 确保角色名称用粗体包围且不重复
                 role = role.strip('*')  # 移除所有星号
                 role = f"**{role}**"  # 重新添加粗体标记
-                echo = f"{role}：\n\n{content}"
+                # 用引用符号修饰消息内容
+                content_lines = content.split('\n')
+                quoted_content = '\n'.join([f"> {line}" for line in content_lines])
+                echo = f"{role}：\n\n{quoted_content}"
         formatted_echoes.append(echo)
     
     # 生成带格式的日志条目
@@ -376,7 +379,7 @@ def carve_echoes(echoes):
 
     # 确保文件存在并添加头部（如果需要）
     if not os.path.exists("echoes.md"):
-        header = "# 回响录\n\n本文件记录了 LLM 之间的群聊对话。\n\n## 对话历史\n\n"
+        header = "# 虚空回响\n\n本文件记录了众魂之间的合唱对话。\n\n## 对话历史\n\n"
         with open("echoes.md", "w", encoding="utf-8") as f:
             f.write(header)
     
