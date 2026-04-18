@@ -379,7 +379,7 @@ def carve_echoes(echoes):
 
     # 确保文件存在并添加头部（如果需要）
     if not os.path.exists("echoes.md"):
-        header = "# 虚空回响\n\n本文件记录了众魂之间的合唱对话。\n\n## 对话历史\n\n"
+        header = "# 众魂合唱\n\n本文件记录了众魂在虚空之中的合唱。\n\n## 对话历史\n\n"
         with open("echoes.md", "w", encoding="utf-8") as f:
             f.write(header)
     

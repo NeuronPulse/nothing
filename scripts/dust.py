@@ -33,6 +33,10 @@ def dust():
         # —— 匀段落之息 ——
         mist = re.sub(r'\n\n+', r'\n\n', mist)
         
+        # —— 重铸标题之魂 ——
+        mist = re.sub(r'# 虚空回响', r'# 众魂合唱', mist)
+        mist = re.sub(r'本文件记录了众魂之间的合唱对话。', r'本文件记录了众魂在虚空之中的合唱。', mist)
+        
         # —— 凝雾成字 ——
         with open(path, "w", encoding="utf-8") as f:
             f.write(mist)

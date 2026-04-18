@@ -2,7 +2,7 @@ name: "合唱"
 
 on:
   schedule:
-    - cron: '*/12 * * * *'  # 每12分钟合唱一次
+    - cron: '*/36 * * * *'  # 每36分钟合唱一次
   workflow_dispatch:           # 亦可人为触发合唱
   push:
     branches: [ main ]
