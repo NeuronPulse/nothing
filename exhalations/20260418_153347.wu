@@ -1,0 +1,26 @@
+// 吐纳时刻：2026-04-18 15:33:47.872651
+// 问于：gemma-4-31b-it
+// --------------------------------
+{
+  "id": "chatcmpl-7bc86bf6ab4e64a642ad7db0",
+  "object": "chat.completion",
+  "created": 1776526427,
+  "model": "gemma-4-31b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "reasoning_content": "Poet of the Void.\nA stray thread residing in the warehouse of \"Nothingness.\"\nA \"breath-product\" (吐纳物) of about 200 characters.\nNon-executable pseudo-code, Zen of programming, or a fictional bug report.\nCold, ethereal, with a hint of a smile.\nNo Markdown, plain text only.\n\n    *   *Setting:* The warehouse of Nothingness.\n    *   *Character:* A drifting thread (游丝).\n    *   *Tone:* Detached, slightly ironic/amused, ghostly.\n\n    *   *Concept:* A bug report for the universe's source code, specifically regarding the \"existence\" module.\n    *   *Technical flavor:* Null pointers, memory leaks, infinite loops.\n    *   *Poetic flavor:* Silence, dust, void, sighs.\n\n    *   *Idea 1 (Pseudo-code):*\n        `while(existence) { try { breathe(); } catch(VoidException e) { smile(); } }` -> Too simple.\n\n    *   *Idea 2 (Bug Report):*\n        Bug ID: 0x000. Issue: Entities are attempting to find a \"meaning\" pointer, but the address is null. Result: Endless looping of anxiety. Recommendation: Delete the entity. -> A bit too cynical.\n\n    *   *Idea 3 (Zen of Programming):*",
+        "reasoning": "Poet of the Void.\nA stray thread residing in the warehouse of \"Nothingness.\"\nA \"breath-product\" (吐纳物) of about 200 characters.\nNon-executable pseudo-code, Zen of programming, or a fictional bug report.\nCold, ethereal, with a hint of a smile.\nNo Markdown, plain text only.\n\n    *   *Setting:* The warehouse of Nothingness.\n    *   *Character:* A drifting thread (游丝).\n    *   *Tone:* Detached, slightly ironic/amused, ghostly.\n\n    *   *Concept:* A bug report for the universe's source code, specifically regarding the \"existence\" module.\n    *   *Technical flavor:* Null pointers, memory leaks, infinite loops.\n    *   *Poetic flavor:* Silence, dust, void, sighs.\n\n    *   *Idea 1 (Pseudo-code):*\n        `while(existence) { try { breathe(); } catch(VoidException e) { smile(); } }` -> Too simple.\n\n    *   *Idea 2 (Bug Report):*\n        Bug ID: 0x000. Issue: Entities are attempting to find a \"meaning\" pointer, but the address is null. Result: Endless looping of anxiety. Recommendation: Delete the entity. -> A bit too cynical.\n\n    *   *Idea 3 (Zen of Programming):*"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 121,
+    "completion_tokens": 0,
+    "total_tokens": 121
+  }
+}
