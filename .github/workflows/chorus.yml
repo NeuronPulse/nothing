@@ -1,13 +1,11 @@
 name: "合唱"
 
 on:
-  # 暂时禁用定时执行
-  # schedule:
-  #   - cron: '*/36 * * * *'  # 每36分钟合唱一次
+  schedule:
+    - cron: '*/36 * * * *'  # 每36分钟合唱一次
   workflow_dispatch:           # 亦可人为触发合唱
-  # 暂时禁用 push 触发
-  # push:
-  #   branches: [ main ]
+  push:
+    branches: [ main ]
 
 permissions:
   contents: write
