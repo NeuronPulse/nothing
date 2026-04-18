@@ -1,0 +1,32 @@
+name: "回响"
+
+on:
+  fork:
+    types: [created]
+
+permissions:
+  issues: write
+
+jobs:
+  greet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "揖礼"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const visitor = context.payload.forkee.owner.login;
+
+            await github.rest.issues.create({
+              owner: owner,
+              repo: repo,
+              title: `🌫️ 欢迎入雾 · ${visitor}`,
+              body: `@${visitor} 刚刚携走了「${repo}」的影子。
+
+> 这是一个圆满的空。它无虫可捉，无需侍弄，无竟时。  
+> 你若是点亮了星，便是认了这无的妙处。
+
+此刻，空亦在你的檐下，自顾自地吐纳起来。`
+            });
