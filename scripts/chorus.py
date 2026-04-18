@@ -204,7 +204,7 @@ def knock_mirror(whispers):
     try:
         if USE_SDK:
             from openai import OpenAI
-            client = OpenAI(api_key=ORACLE_KEY, base_url=url)
+            client = OpenAI(api_key=ORACLE_KEY, base_url=url, timeout=60)
             completion = client.chat.completions.create(
                 model=ORACLE_NAME,
                 messages=whispers,
@@ -213,7 +213,7 @@ def knock_mirror(whispers):
             )
             echo = completion.choices[0].message.content.strip()
         else:
-            resp = requests.post(url, headers=headers, json=body, timeout=30)
+            resp = requests.post(url, headers=headers, json=body, timeout=60)
             resp.raise_for_status()
             mist = resp.json()
             echo = pluck_mist(mist, RESPONSE_PATH)
@@ -297,7 +297,7 @@ def chorus():
             },
             {
                 "role": "user",
-                "content": "请继续之前的对话。"
+                "content": f"请角色们进行{CYCLE}轮对话，每轮每个角色都要发言。"
             }
         ]
     else:
@@ -312,37 +312,39 @@ def chorus():
             },
             {
                 "role": "user",
-                "content": f"开始群聊，初始话题：{INITIAL_INQUIRY}"
+                "content": f"开始群聊，初始话题：{INITIAL_INQUIRY}，请角色们进行{CYCLE}轮对话，每轮每个角色都要发言。"
             }
         ]
 
     # 生成对话
     echoes = []
     
-    # 进行多轮对话
-    for cycle in range(CYCLE):
-        # 每轮随机打乱角色顺序
-        shuffled_souls = souls.copy()
-        random.shuffle(shuffled_souls)
+    # 发送一次请求获取所有对话
+    echo = knock_mirror(whispers)
+    if echo:
+        # 解析回复，提取每个角色的发言
+        lines = echo.split('\n')
+        current_role = None
+        current_content = []
         
-        # 每个角色发言
-        for soul in shuffled_souls:
-            # 构建该角色的消息
-            soul_whisper = {
-                "role": "user",
-                "content": f"现在请{soul['name']}发言，保持其个性特点：{soul['personality']}"
-            }
-            whispers.append(soul_whisper)
-
-            # 发送请求获取回复
-            echo = knock_mirror(whispers)
-            if echo:
-                echoes.append(f"**{soul['name']}**：{echo}")
-                # 将回复添加到对话历史
-                whispers.append({
-                    "role": "assistant",
-                    "content": echo
-                })
+        for line in lines:
+            line = line.strip()
+            # 检查是否是角色发言
+            if line.startswith("**") and "：" in line:
+                # 保存之前的对话
+                if current_role and current_content:
+                    echoes.append(f"**{current_role}**：{''.join(current_content).strip()}")
+                # 提取角色名称
+                role_part = line.split("：")[0]
+                current_role = role_part.strip('*')
+                current_content = []
+            elif current_role and line:
+                # 累积内容
+                current_content.append(line + '\n')
+        
+        # 保存最后一条对话
+        if current_role and current_content:
+            echoes.append(f"**{current_role}**：{''.join(current_content).strip()}")
 
     return echoes
 
