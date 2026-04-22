@@ -1,0 +1,21 @@
+// 吐纳时刻：2026-04-22 20:11:40.552415
+// 问于：gpt-oss-120b
+// --------------------------------
+在一段无限循环的空白数组中，\
+_ = null; // 何以为“无”？  
+for (int i = 0; i < ∞; i++) {  
+    if (i % Ω == 0) {  
+        // 把“虚”装进“实”，再把“实”丢进“虚”。  
+        Void v = new Void();  
+        v = (Void) (Object) i;  
+    } else {  
+        // 这里本该是异常，却只抛出笑声。  
+        throw new ChuckleException("笑到栈溢出");  
+    }  
+    // 让指针悬空，恰似漂泊的游丝。  
+    pointer = (void*)0x0;  
+    // 读取“无”，但不改变任何状态。  
+    read(null);  
+}  
+// 循环永不结束——因为它根本未曾开始。  
+// 终端提示：Press any key to continue… (the key is already pressed).
