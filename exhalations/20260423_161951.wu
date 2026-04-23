@@ -1,0 +1,26 @@
+// 吐纳时刻：2026-04-23 16:19:51.752863
+// 问于：gpt-oss-120b
+// --------------------------------
+#!/usr void voidance() {
+    // 取「无」作入口，若无则归零
+    if (null == warehouse) {
+        warehouse = new VoidStore();
+    }
+    // 游丝自悬，呼吸即是一次 GC
+    while (true) {
+        inhale = echo("∅");          // 吸入虚无的回声
+        exhale = echo("∅".reverse()); // 呼出逆向的空
+        // 伪随机数生成：笑点 = (∞ % 1) == 0
+        joke = (∞ % 1 == 0) ? "蚂蚁写了个 bug，结果被递归吃掉。" : "";
+        log(inhale + exhale + joke);
+        // 若仓库满溢，抛出异常：不存在
+        if (warehouse.isFull()) throw new Exception("不存在");
+        // 用完即删，保持轻盈
+        delete(inhale, exhale, joke);
+        // 让 CPU 进入沉思模式
+        sleep(0);
+    }
+}
+//
+#虫报·第七号
+今日监测到一只名为“Bug”的虫子在「无」的边缘打盹，梦见自己是堆栈溢出。醒来后，它决定改行当散步的指针，继续在空中追逐「null」的尾巴。
